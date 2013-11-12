@@ -20,6 +20,8 @@ var (
 	dbpath = flag.String("db", defaultdb, "path to notes database")
 )
 
+const dbEnv = "NOTE_DATABASE"
+
 const (
 	notesTable = "notes"
 	timeField  = "unixtime"
@@ -29,7 +31,6 @@ const (
 
 func main() {
 	flag.Parse()
-
 	if flag.NArg() > 1 {
 		log.Fatal("only one arg must be provided")
 	}
@@ -47,6 +48,9 @@ func main() {
 	}
 
 	// open database
+	if *dbpath == defaultdb && os.Getenv(dbEnv) != "" {
+		*dbpath = os.Getenv(dbEnv)
+	}
 	db, err := sql.Open("sqlite3", *dbpath)
 	fatalif(err)
 	defer db.Close()
