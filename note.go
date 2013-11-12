@@ -23,10 +23,10 @@ var (
 const dbEnv = "NOTE_DATABASE"
 
 const (
-	notesTable = "notes"
-	timeField  = "unixtime"
-	metaField  = "meta"
-	dataField  = "data"
+	table     = "rawdata"
+	timeField = "unixtime"
+	metaField = "meta"
+	dataField = "data"
 )
 
 func main() {
@@ -57,12 +57,12 @@ func main() {
 
 	// create table
 	sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v INTEGER, %v TEXT, %v BLOB);",
-		notesTable, timeField, metaField, dataField)
+		table, timeField, metaField, dataField)
 	_, err = db.Exec(sql)
 	fatalif(err)
 
 	// insert note into db
-	sql = fmt.Sprintf("INSERT INTO %v VALUES (?,?,?);", notesTable)
+	sql = fmt.Sprintf("INSERT INTO %v VALUES (?,?,?);", table)
 	_, err = db.Exec(sql, time.Now().Unix(), meta, data)
 	fatalif(err)
 
