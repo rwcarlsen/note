@@ -42,9 +42,12 @@ func main() {
 	if *file != "" {
 		data, err = ioutil.ReadFile(*file)
 		fatalif(err)
-	}
-	if flag.NArg() == 1 {
-		meta = flag.Arg(0)
+		if flag.NArg() == 1 {
+			meta = flag.Arg(0)
+		}
+	} else {
+		meta = "note"
+		data = []byte(flag.Arg(0))
 	}
 
 	// open database
