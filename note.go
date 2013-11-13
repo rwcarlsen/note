@@ -17,10 +17,17 @@ var defaultdb = filepath.Join(os.Getenv("HOME"), "personal-notes.sqlite")
 
 var (
 	file   = flag.String("f", "", "use file contents as the note text")
-	dbpath = flag.String("db", defaultdb, "path to notes database")
+	dbpath = flag.String("db", getdb(), "path to notes database")
 )
 
 const dbEnv = "NOTE_DATABASE"
+
+func getdb() string {
+	if os.Getenv(dbEnv) != "" {
+		return os.Getenv(dbEnv)
+	}
+	return defaultdb
+}
 
 const (
 	table     = "rawdata"
@@ -30,30 +37,32 @@ const (
 )
 
 func main() {
+	log.SetFlags(0)
 	flag.Parse()
-	if flag.NArg() > 1 {
-		log.Fatal("only one arg must be provided")
+	if flag.NArg() > 2 || flag.NArg() == 0 {
+		log.Fatal("1 or 2 args required: meta [note]")
 	}
 
 	// get file and/or meta data
 	var err error
 	data := []byte{}
-	meta := ""
+	meta := flag.Arg(0)
 	if *file != "" {
+		if flag.NArg() != 1 {
+			log.Fatal("need exactly 1 meta-arg for file")
+		}
 		data, err = ioutil.ReadFile(*file)
 		fatalif(err)
-		if flag.NArg() == 1 {
-			meta = flag.Arg(0)
-		}
 	} else {
-		meta = "note"
-		data = []byte(flag.Arg(0))
+		if flag.NArg() == 1 {
+			meta = "note"
+			data = []byte(flag.Arg(0))
+		} else {
+			data = []byte(flag.Arg(1))
+		}
 	}
 
 	// open database
-	if *dbpath == defaultdb && os.Getenv(dbEnv) != "" {
-		*dbpath = os.Getenv(dbEnv)
-	}
 	db, err := sql.Open("sqlite3", *dbpath)
 	fatalif(err)
 	defer db.Close()
